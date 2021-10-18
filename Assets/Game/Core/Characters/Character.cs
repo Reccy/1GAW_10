@@ -21,6 +21,16 @@ public class Character : MonoBehaviour
         transform.position = m_grid.GetCellCenterWorld(m_currentCellPos);
     }
 
+    private void OnEnable()
+    {
+        LevelManager.Instance.RegisterCharacter(this);
+    }
+
+    private void OnDisable()
+    {
+        LevelManager.Instance.DeregisterCharacter(this);
+    }
+
     public void MoveUp()
     {
         Vector3Int newPosition = m_currentCellPos + Vector3Int.up;
@@ -49,13 +59,21 @@ public class Character : MonoBehaviour
         TryMove(newPosition);
     }
 
+    public void MoveTo(Vector3Int position)
+    {
+        TryMove(position);
+    }
+
     private void TryMove(Vector3Int newPosition)
     {
         if (!IsWalkable(newPosition))
             return;
 
+        var originalPos = m_currentCellPos;
         m_currentCellPos = newPosition;
         transform.position = m_grid.GetCellCenterWorld(m_currentCellPos);
+
+        LevelManager.Instance.NotifyMoved(originalPos, newPosition, this);
     }
 
     private bool IsWalkable(Vector3Int position)
