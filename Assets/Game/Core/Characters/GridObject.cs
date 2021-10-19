@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class Character : MonoBehaviour
+public class GridObject : MonoBehaviour
 {
     private Grid m_grid;
 
@@ -21,12 +21,12 @@ public class Character : MonoBehaviour
 
     private void OnEnable()
     {
-        LevelManager.Instance.RegisterCharacter(this);
+        LevelManager.Instance.Register(this);
     }
 
     private void OnDisable()
     {
-        LevelManager.Instance.DeregisterCharacter(this);
+        LevelManager.Instance.Deregister(this);
     }
 
     public void MoveUp()

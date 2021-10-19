@@ -15,7 +15,11 @@ public class LevelManager : MonoBehaviour
     [SerializeField] GameObject m_highlighter;
     public GameObject Highlighter => m_highlighter;
 
-    private List<Character> m_characters;
+    [SerializeField] TextLog m_textLog;
+    public TextLog TextLog => m_textLog;
+
+    private List<GridObject> m_gridObjects;
+    private List<Interactable> m_interactables;
 
     public static LevelManager Instance;
 
@@ -30,45 +34,69 @@ public class LevelManager : MonoBehaviour
 
         Instance = this;
 
-        m_characters = new List<Character>();
+        m_gridObjects = new List<GridObject>();
+        m_interactables = new List<Interactable>();
     }
 
-    public void RegisterCharacter(Character c)
+    public void Register(GridObject c)
     {
-        m_characters.Add(c);
+        m_gridObjects.Add(c);
     }
 
-    public void DeregisterCharacter(Character c)
+    public void Deregister(GridObject c)
     {
-        m_characters.Remove(c);
+        m_gridObjects.Remove(c);
     }
 
-    public void NotifyMoved(Vector3Int from, Vector3Int to, Character c)
+    public void Register(Interactable inter)
     {
-        foreach (Character character in m_characters)
+        m_interactables.Add(inter);
+    }
+
+    public void Deregister(Interactable inter)
+    {
+        m_interactables.Remove(inter);
+    }
+
+    public void NotifyMoved(Vector3Int from, Vector3Int to, GridObject gridObj)
+    {
+        foreach (GridObject obj in m_gridObjects)
         {
-            if (character == c)
+            if (obj == gridObj)
                 continue;
 
-            if (character.CurrentCellPosition == to)
+            if (obj.CurrentCellPosition == to)
             {
                 // Character needs to move out of position
-                List<Vector3Int> targets = FindAdjacentWalkableSpaces(character.CurrentCellPosition);
+                List<Vector3Int> targets = FindAdjacentWalkableSpaces(obj.CurrentCellPosition);
                 targets.Remove(from);
                 Vector3Int target = targets.SelectRandom();
 
-                character.MoveTo(target);
+                obj.MoveTo(target);
             }
         }
     }
 
     public Brain GetBrainAtPosition(Vector3Int position)
     {
-        foreach (Character character in m_characters)
+        foreach (GridObject character in m_gridObjects)
         {
             if (character.CurrentCellPosition == position)
             {
                 return character.gameObject.GetComponent<Brain>();
+            }
+        }
+
+        return null;
+    }
+
+    public Interactable GetInteractableAtPosition(Vector3Int position)
+    {
+        foreach (Interactable interactable in m_interactables)
+        {
+            if (interactable.CurrentCellPosition == position)
+            {
+                return interactable;
             }
         }
 

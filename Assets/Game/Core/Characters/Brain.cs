@@ -5,13 +5,11 @@ using UnityEngine.Events;
 
 public class Brain : MonoBehaviour
 {
-    private Character m_character;
+    private GridObject m_character;
     
     [Header("Setup")]
     [SerializeField] private InputSource m_input;
     public InputSource Input => m_input;
-
-    [SerializeField] private UnityEvent OnActionPerformed;
 
     [Header("AI")]
     [SerializeField] private BrainState m_brainState;
@@ -21,13 +19,15 @@ public class Brain : MonoBehaviour
 
     private void Awake()
     {
-        m_character = GetComponent<Character>();
+        m_character = GetComponent<GridObject>();
 
         m_isPlayerCharacter = m_brainState == BrainState.PC;
     }
 
     public void ReleaseControl()
     {
+        m_input.Clear();
+
         if (m_isPlayerCharacter)
         {
             m_brainState = BrainState.IDLE;
@@ -40,6 +40,8 @@ public class Brain : MonoBehaviour
 
     public void AssumeControl()
     {
+        m_input.Clear();
+
         m_brainState = BrainState.PC;
     }
 
@@ -61,18 +63,17 @@ public class Brain : MonoBehaviour
 
     private void FixedUpdateIdle()
     {
-
+        // idle todo
     }
 
     private void FixedUpdatePC()
     {
         HandleMovementPC();
-        HandleActionsPC();
     }
 
     private void FixedUpdateAI()
     {
-
+        // todo
     }
 
     private void HandleMovementPC()
@@ -98,19 +99,5 @@ public class Brain : MonoBehaviour
         {
             m_character.MoveDown();
         }
-    }
-
-    private void HandleActionsPC()
-    {
-        if (!m_input.ActionInput())
-            return;
-
-        if (OnActionPerformed == null)
-        {
-            Debug.Log("Cannot perform action - it is not set!"); // todo: expose this to UI with SFX
-            return;
-        }
-
-        OnActionPerformed.Invoke();
     }
 }
