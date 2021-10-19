@@ -78,6 +78,6 @@ public class Character : MonoBehaviour
 
     private bool IsWalkable(Vector3Int position)
     {
-        return m_walkableTilemap.GetTile(position) != null;
+        return LevelManager.Instance.IsWalkable(position);
     }
 }
