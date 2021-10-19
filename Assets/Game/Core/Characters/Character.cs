@@ -6,7 +6,6 @@ using UnityEngine.Tilemaps;
 public class Character : MonoBehaviour
 {
     private Grid m_grid;
-    private Tilemap m_walkableTilemap;
 
     private Vector3Int m_currentCellPos;
     public Vector3Int CurrentCellPosition => m_currentCellPos;
@@ -14,7 +13,6 @@ public class Character : MonoBehaviour
     private void Awake()
     {
         m_grid = LevelManager.Instance.Grid;
-        m_walkableTilemap = LevelManager.Instance.WalkableTilemap;
 
         // Setup position
         m_currentCellPos = m_grid.WorldToCell(transform.position);

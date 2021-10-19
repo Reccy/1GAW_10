@@ -12,6 +12,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] Tilemap m_walkableTilemap;
     public Tilemap WalkableTilemap => m_walkableTilemap;
 
+    [SerializeField] GameObject m_highlighter;
+    public GameObject Highlighter => m_highlighter;
+
     private List<Character> m_characters;
 
     public static LevelManager Instance;
@@ -57,6 +60,19 @@ public class LevelManager : MonoBehaviour
                 character.MoveTo(target);
             }
         }
+    }
+
+    public Brain GetBrainAtPosition(Vector3Int position)
+    {
+        foreach (Character character in m_characters)
+        {
+            if (character.CurrentCellPosition == position)
+            {
+                return character.gameObject.GetComponent<Brain>();
+            }
+        }
+
+        return null;
     }
 
     private List<Vector3Int> FindAdjacentWalkableSpaces(Vector3Int position)
