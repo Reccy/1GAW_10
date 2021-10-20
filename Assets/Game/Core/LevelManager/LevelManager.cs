@@ -18,6 +18,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] TextLog m_textLog;
     public TextLog TextLog => m_textLog;
 
+    [SerializeField] private PossessionChainLine m_possessionChainLine;
+    public PossessionChainLine PossessionChainLine => m_possessionChainLine;
+
     private List<GridObject> m_gridObjects;
     private List<Interactable> m_interactables;
 
@@ -36,6 +39,8 @@ public class LevelManager : MonoBehaviour
 
         m_gridObjects = new List<GridObject>();
         m_interactables = new List<Interactable>();
+
+        m_possessionChainLine.gameObject.SetActive(true);
     }
 
     public void Register(GridObject c)

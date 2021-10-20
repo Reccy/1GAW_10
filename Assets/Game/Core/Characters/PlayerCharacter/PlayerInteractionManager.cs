@@ -5,8 +5,9 @@ using Reccy.ScriptExtensions;
 
 public class PlayerInteractionManager : MonoBehaviour
 {
-    private GridObject m_char;
     private Brain m_playerBrain;
+    public Brain PlayerBrain => m_playerBrain;
+
     private Vector3Int m_selectionCellPosition;
     private GameObject m_highlighter;
     private SpriteRenderer m_highlighterSprite;
@@ -57,6 +58,8 @@ public class PlayerInteractionManager : MonoBehaviour
         }
     }
 
+    private Dictionary<Brain, Attributes.OnHealthExhaustedEvent> m_exhaustionEvents;
+
     [Header("Input Setup")]
     [SerializeField] private InputSource m_input;
     [SerializeField] private InputSource m_playerBrainInputSource;
@@ -82,15 +85,17 @@ public class PlayerInteractionManager : MonoBehaviour
     public bool IsControlIntent => m_im == InteractionMode.CONTROL;
 
     private void Awake()
-    {
-        m_char = GetComponent<GridObject>();
+    { 
         m_playerBrain = GetComponent<Brain>();
         m_highlighter = LevelManager.Instance.Highlighter;
         m_highlighterSprite = m_highlighter.GetComponent<SpriteRenderer>();
         m_currentInteractionList = new List<Interactable>();
+        m_exhaustionEvents = new Dictionary<Brain, Attributes.OnHealthExhaustedEvent>();
 
         m_brainStack = new Stack<Brain>();
         m_brainStack.Push(m_playerBrain);
+        
+        LevelManager.Instance.PossessionChainLine.SetStack(m_brainStack.ToList());
 
         ResetHighlighterPosition();
     }
@@ -98,11 +103,29 @@ public class PlayerInteractionManager : MonoBehaviour
     private void OnEnable()
     {
         m_playerBrain.Attributes.OnHealthExhausted += OnPlayerDeath;
+
+        foreach (var brain in m_brainStack)
+        {
+            Attributes.OnHealthExhaustedEvent evt;
+            if (m_exhaustionEvents.TryGetValue(brain, out evt))
+            {
+                brain.Attributes.OnHealthExhausted += evt;
+            }
+        }
     }
 
     private void OnDisable()
     {
         m_playerBrain.Attributes.OnHealthExhausted -= OnPlayerDeath;
+
+        foreach (var brain in m_brainStack)
+        {
+            Attributes.OnHealthExhaustedEvent evt;
+            if (m_exhaustionEvents.TryGetValue(brain, out evt))
+            {
+                brain.Attributes.OnHealthExhausted -= evt;
+            }
+        }
     }
 
     private void OnPlayerDeath()
@@ -112,9 +135,31 @@ public class PlayerInteractionManager : MonoBehaviour
             m_brainStack.Pop().ReleaseControl();
         }
 
-        LevelManager.Instance.TextLog.Log("You have died... GAME OVER");
+        LevelManager.Instance.PossessionChainLine.SetStack(new List<Brain>());
+
+        Log("You have died... GAME OVER");
 
         Destroy(gameObject);
+    }
+
+    private void OnBrainDeath(Brain deadBrain)
+    {
+        Debug.Log($"{deadBrain.DisplayName} died");
+
+        do
+        {
+            var brain = m_brainStack.Pop();
+
+            UnregisterExhaustionEvent(brain);
+            brain.ReleaseControl();
+
+            LevelManager.Instance.PossessionChainLine.SetStack(m_brainStack.ToList());
+
+            Log($"Lost control of {brain.DisplayName}");
+        }
+        while (m_brainStack.Contains(deadBrain));
+
+        CurrentBrain.AssumeControl();
     }
 
     private void FixedUpdate()
@@ -302,19 +347,43 @@ public class PlayerInteractionManager : MonoBehaviour
         m_brainStack.Push(m_currentHighlightedBrain);
 
         CurrentBrain.AssumeControl();
+
+        RegisterExhaustionEvent(CurrentBrain);
+
+        LevelManager.Instance.PossessionChainLine.SetStack(m_brainStack.ToList());
+
+        Log($"Gained control of {CurrentBrain.DisplayName}");
     }
 
     private void ReleaseControl()
     {
+        Log($"Released control of {CurrentBrain.DisplayName}");
+
         m_ps = SelectionState.IDLE;
 
         m_highlighter.SetActive(false);
 
         CurrentBrain.ReleaseControl();
 
+        UnregisterExhaustionEvent(CurrentBrain);
+
         m_brainStack.Pop();
 
+        LevelManager.Instance.PossessionChainLine.SetStack(m_brainStack.ToList());
+
         CurrentBrain.AssumeControl();
+    }
+
+    private void UnregisterExhaustionEvent(Brain brain)
+    {
+        brain.Attributes.OnHealthExhausted -= m_exhaustionEvents[brain];
+        m_exhaustionEvents.Remove(brain);
+    }
+
+    private void RegisterExhaustionEvent(Brain brain)
+    {
+        m_exhaustionEvents.Add(brain, delegate(){ OnBrainDeath(brain); });
+        CurrentBrain.Attributes.OnHealthExhausted += m_exhaustionEvents[brain];
     }
 
     private void CancelInteraction()
