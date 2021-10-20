@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 9166974137687031381}
   - component: {fileID: 8682816452403317655}
   - component: {fileID: 5679738275502669542}
-  - component: {fileID: 1032884674320011689}
   m_Layer: 0
   m_Name: ScientistCharacter
   m_TagString: Untagged
@@ -60,6 +59,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_input: {fileID: 5679738275502669542}
+  m_displayName: Linguine from Ratatouille
   m_brainState: 1
 --- !u!114 &5679738275502669542
 MonoBehaviour:
@@ -73,53 +73,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4c02e66dc59b0448b2c364ec7ccf48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1032884674320011689
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9166974137687031383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32162223187881e44a48e2af29d84a4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_canCancel: 1
-  m_selectedText: Possess
-  OnPerform:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8682816452403317655}
-        m_TargetAssemblyTypeName: Brain, Assembly-CSharp
-        m_MethodName: AssumeControl
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  OnFinish:
-    m_PersistentCalls:
-      m_Calls: []
-  OnCancel:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8682816452403317655}
-        m_TargetAssemblyTypeName: Brain, Assembly-CSharp
-        m_MethodName: ReleaseControl
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!1 &9166974137884275293
 GameObject:
   m_ObjectHideFlags: 0

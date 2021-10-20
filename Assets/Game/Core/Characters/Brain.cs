@@ -12,6 +12,9 @@ public class Brain : MonoBehaviour
     public InputSource Input => m_input;
 
     [Header("AI")]
+    [SerializeField] private string m_displayName;
+    public string DisplayName => m_displayName;
+
     [SerializeField] private BrainState m_brainState;
     private enum BrainState { IDLE, AI, PC };
 

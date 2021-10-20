@@ -21,7 +21,7 @@ public class Interactable : MonoBehaviour
     public string SelectedText => m_selectedText;
 
     [Header("Events")]
-    public UnityEvent OnPerform;
+    public UnityEvent<Brain, Interactable> OnPerform;
     public UnityEvent OnFinish;
     public UnityEvent OnCancel;
 
@@ -40,10 +40,10 @@ public class Interactable : MonoBehaviour
         LevelManager.Instance.Deregister(this);
     }
 
-    public void Perform()
+    public void Perform(Brain instigator)
     {
         if (OnPerform != null)
-            OnPerform.Invoke();
+            OnPerform.Invoke(instigator, this);
         else
             Debug.LogWarning($"Empty Perform() Called on {gameObject.name}", this);
     }

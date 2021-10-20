@@ -5,46 +5,51 @@ using UnityEngine;
 public class Stove : MonoBehaviour
 {
     private int m_stage = 0;
+    private Brain m_currentBrain;
 
     private void Log(string s)
     {
         LevelManager.Instance.TextLog.AddLine(s);
     }
 
-    public void OnUsed(Interactable interactable)
+    public void OnUsed(Brain brain, Interactable interactable)
     {
+        m_currentBrain = brain;
+
         if (m_stage == 0)
         {
-            Log("You turn on the stove");
+            Log($"{brain.DisplayName} turns on the stove");
             interactable.Finish();
         }
         else if (m_stage == 1)
         {
-            Log("You cook some lobster");
+            Log($"{brain.DisplayName} cooks some lobster");
             interactable.Finish();
         }
         else if (m_stage == 2)
         {
-            Log("Yummy");
+            Log($"{brain.DisplayName}: 'Yummy'");
             interactable.Finish();
         }
         else if (m_stage == 3)
         {
-            Log("Itchy. Tasty.");
+            Log($"{brain.DisplayName}: 'Itchy. Tasty.'");
             interactable.Finish();
         }
         else
         {
-            Log("You decide you've had enough of the stove...");
+            Log($"{brain.DisplayName} decides they've had enough of the stove...");
             StartCoroutine(FinishMeCoroutine(interactable));
         }
 
         m_stage++;
     }
 
-    public void Destroy(Interactable interactable)
+    public void Destroy(Brain brain, Interactable interactable)
     {
-        Log("You destroy the stove in disgust. Good riddance.");
+        m_currentBrain = brain;
+
+        Log($"{m_currentBrain.DisplayName} destroys the stove in disgust. Good riddance.");
         interactable.Finish();
         Destroy(gameObject);
     }

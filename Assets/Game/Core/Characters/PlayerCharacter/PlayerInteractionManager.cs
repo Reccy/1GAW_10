@@ -26,14 +26,26 @@ public class PlayerInteractionManager : MonoBehaviour
     private List<Interactable> m_currentInteractionList;
     public List<Interactable> CurrentList => m_currentInteractionList;
 
-    private Interactable m_currentSelected;
-    public Interactable CurrentSelected => m_currentSelected;
-
     private Brain m_currentHighlightedBrain;
     public Brain CurrentHighlightedBrain => m_currentHighlightedBrain;
 
-    private Brain m_currentBrain;
-    public Brain CurrentBrain => m_currentBrain;
+    private Stack<Brain> m_brainStack;
+    public Brain CurrentBrain => m_brainStack.Peek();
+
+    public List<string> BrainStackNames
+    {
+        get
+        {
+            List<string> res = new List<string>();
+
+            foreach (Brain b in m_brainStack)
+            {
+                res.Add(b.DisplayName);
+            }
+
+            return res;
+        }
+    }
 
     [Header("Input Setup")]
     [SerializeField] private InputSource m_input;
@@ -67,23 +79,24 @@ public class PlayerInteractionManager : MonoBehaviour
         m_highlighterSprite = m_highlighter.GetComponent<SpriteRenderer>();
         m_currentInteractionList = new List<Interactable>();
 
-        m_currentBrain = m_playerBrain;
+        m_brainStack = new Stack<Brain>();
+        m_brainStack.Push(m_playerBrain);
 
         ResetHighlighterPosition();
     }
 
     private void FixedUpdate()
     {
-        if (m_input.CancelInput())
+        if (IsIdle)
         {
-            if (CurrentInteractable != null && !CurrentInteractable.CanCancel)
-                return;
-
-            CancelInteraction();
-        }
-        else if (IsIdle)
-        {
-            if (m_input.ActionInput())
+            if (m_input.CancelInput())
+            {
+                if (m_brainStack.Count > 1)
+                {
+                    ReleaseControl();
+                }
+            }
+            else if (m_input.ActionInput())
             {
                 m_im = InteractionMode.ACTION;
                 m_highlighterSprite.color = m_interactColor;
@@ -104,7 +117,14 @@ public class PlayerInteractionManager : MonoBehaviour
         }
         else if (IsSelectingCell)
         {
-            if (IsActionIntent)
+            if (m_input.CancelInput())
+            {
+                if (CurrentInteractable != null && !CurrentInteractable.CanCancel)
+                    return;
+
+                CancelInteraction();
+            }
+            else if (IsActionIntent)
             {
                 if (m_input.ActionInput())
                 {
@@ -155,7 +175,13 @@ public class PlayerInteractionManager : MonoBehaviour
         }
         else if (IsSelectingAction)
         {
-            if (IsActionIntent)
+            if (m_input.CancelInput())
+            {
+                if (CurrentInteractable != null && !CurrentInteractable.CanCancel)
+                    return;
+
+                CancelInteraction();
+            } else if (IsActionIntent)
             {
                 if (m_input.ActionInput())
                 {
@@ -180,7 +206,7 @@ public class PlayerInteractionManager : MonoBehaviour
         m_highlighter.SetActive(true);
 
         m_input.Clear();
-        m_currentBrain.ReleaseControl();
+        CurrentBrain.ReleaseControl();
     }
 
     private void OpenActionMenu()
@@ -202,7 +228,7 @@ public class PlayerInteractionManager : MonoBehaviour
         m_highlighter.SetActive(false);
 
         CurrentInteractable.OnFinish.AddListener(AfterFinish);
-        CurrentInteractable.Perform();
+        CurrentInteractable.Perform(CurrentBrain);
     }
 
     private void AssumeControl()
@@ -211,11 +237,24 @@ public class PlayerInteractionManager : MonoBehaviour
 
         m_highlighter.SetActive(false);
 
-        m_currentBrain.ReleaseControl();
+        CurrentBrain.ReleaseControl();
 
-        m_currentBrain = m_currentHighlightedBrain;
+        m_brainStack.Push(m_currentHighlightedBrain);
 
-        m_currentBrain.AssumeControl();
+        CurrentBrain.AssumeControl();
+    }
+
+    private void ReleaseControl()
+    {
+        m_ps = SelectionState.IDLE;
+
+        m_highlighter.SetActive(false);
+
+        CurrentBrain.ReleaseControl();
+
+        m_brainStack.Pop();
+
+        CurrentBrain.AssumeControl();
     }
 
     private void CancelInteraction()
@@ -231,7 +270,7 @@ public class PlayerInteractionManager : MonoBehaviour
             m_currentInteractableIndex = 0;
         }
 
-        m_currentBrain.AssumeControl();
+        CurrentBrain.AssumeControl();
     }
 
     private void AfterFinish()
@@ -246,7 +285,7 @@ public class PlayerInteractionManager : MonoBehaviour
             m_currentInteractableIndex = 0;
         }
 
-        m_currentBrain.AssumeControl();
+        CurrentBrain.AssumeControl();
     }
 
     private void HandleMoveHighlighter()
@@ -272,9 +311,17 @@ public class PlayerInteractionManager : MonoBehaviour
         }
 
         if (IsActionIntent)
+        {
             m_currentInteractionList = LevelManager.Instance.GetInteractablesAtPosition(m_selectionCellPosition);
+        }
         else if (IsControlIntent)
+        {
             m_currentHighlightedBrain = LevelManager.Instance.GetBrainAtPosition(m_selectionCellPosition);
+
+            // Can't select brain if it's already in a control chain
+            if (m_brainStack.Contains(m_currentHighlightedBrain))
+                m_currentHighlightedBrain = null;
+        }
 
         m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_selectionCellPosition);
     }
@@ -306,7 +353,7 @@ public class PlayerInteractionManager : MonoBehaviour
 
     private void ResetHighlighterPosition()
     {
-        m_selectionCellPosition = m_currentBrain.CurrentCellPosition;
-        m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_currentBrain.CurrentCellPosition);
+        m_selectionCellPosition = CurrentBrain.CurrentCellPosition;
+        m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(CurrentBrain.CurrentCellPosition);
     }
 }
