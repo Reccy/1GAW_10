@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9166974137687031381}
   - component: {fileID: 8682816452403317655}
   - component: {fileID: 5679738275502669542}
+  - component: {fileID: 1035358204736308373}
   m_Layer: 0
   m_Name: ScientistCharacter
   m_TagString: Untagged
@@ -59,7 +60,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_input: {fileID: 5679738275502669542}
-  m_displayName: Linguine from Ratatouille
+  m_displayName: Guy Fieri
   m_brainState: 1
 --- !u!114 &5679738275502669542
 MonoBehaviour:
@@ -73,6 +74,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4c02e66dc59b0448b2c364ec7ccf48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1035358204736308373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9166974137687031383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b690d0bf85984a47ad29fe3aa835d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Health: 10
+  MaxHealth: 10
+  CookingSkill: 20
 --- !u!1 &9166974137884275293
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,8 +5,11 @@ using UnityEngine.Events;
 
 public class Brain : MonoBehaviour
 {
-    private GridObject m_character;
+    private GridObject m_gridObject;
     
+    private Attributes m_attributes;
+    public Attributes Attributes => m_attributes;
+
     [Header("Setup")]
     [SerializeField] private InputSource m_input;
     public InputSource Input => m_input;
@@ -18,13 +21,14 @@ public class Brain : MonoBehaviour
     [SerializeField] private BrainState m_brainState;
     private enum BrainState { IDLE, AI, PC };
 
-    public Vector3Int CurrentCellPosition => m_character.CurrentCellPosition;
+    public Vector3Int CurrentCellPosition => m_gridObject.CurrentCellPosition;
 
     private bool m_isPlayerCharacter = false;
 
     private void Awake()
     {
-        m_character = GetComponent<GridObject>();
+        m_gridObject = GetComponent<GridObject>();
+        m_attributes = GetComponent<Attributes>();
 
         m_isPlayerCharacter = m_brainState == BrainState.PC;
     }
@@ -87,22 +91,22 @@ public class Brain : MonoBehaviour
 
         if (m_moveHInput == 1)
         {
-            m_character.MoveRight();
+            m_gridObject.MoveRight();
         }
         else if (m_moveHInput == -1)
         {
-            m_character.MoveLeft();
+            m_gridObject.MoveLeft();
         }
 
         var m_moveVInput = m_input.MoveVInput();
 
         if (m_moveVInput == 1)
         {
-            m_character.MoveUp();
+            m_gridObject.MoveUp();
         }
         else if (m_moveVInput == -1)
         {
-            m_character.MoveDown();
+            m_gridObject.MoveDown();
         }
     }
 }

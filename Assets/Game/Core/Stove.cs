@@ -6,6 +6,7 @@ public class Stove : MonoBehaviour
 {
     private int m_stage = 0;
     private Brain m_currentBrain;
+    private Attributes CurrentAttributes => m_currentBrain.Attributes;
 
     private void Log(string s)
     {
@@ -18,31 +19,50 @@ public class Stove : MonoBehaviour
 
         if (m_stage == 0)
         {
-            Log($"{brain.DisplayName} turns on the stove");
+            if (CurrentAttributes.CookingSkill < 50)
+            {
+                Log($"{brain.DisplayName} tries to turn on the stove, but can't");
+            }
+            else
+            {
+                Log($"{brain.DisplayName} turns on the stove");
+                m_stage++;
+            }
+
             interactable.Finish();
         }
         else if (m_stage == 1)
         {
-            Log($"{brain.DisplayName} cooks some lobster");
+            if (CurrentAttributes.CookingSkill < 50)
+            {
+                Log($"{brain.DisplayName} tries to cook some lobster. It skuttles out of the pot.");
+            }
+            else
+            {
+                Log($"{brain.DisplayName} cooks some lobster");
+                m_stage++;
+            }
+            
             interactable.Finish();
         }
         else if (m_stage == 2)
         {
             Log($"{brain.DisplayName}: 'Yummy'");
             interactable.Finish();
+            m_stage++;
         }
         else if (m_stage == 3)
         {
             Log($"{brain.DisplayName}: 'Itchy. Tasty.'");
             interactable.Finish();
+            m_stage++;
         }
         else
         {
             Log($"{brain.DisplayName} decides they've had enough of the stove...");
             StartCoroutine(FinishMeCoroutine(interactable));
+            m_stage++;
         }
-
-        m_stage++;
     }
 
     public void Destroy(Brain brain, Interactable interactable)

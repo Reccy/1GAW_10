@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6229695968866515726}
   - component: {fileID: 4604821186844591677}
   - component: {fileID: 2144218116477630898}
+  - component: {fileID: 8995270177917966065}
   m_Layer: 0
   m_Name: PlayerCharacter
   m_TagString: Untagged
@@ -92,6 +93,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4c02e66dc59b0448b2c364ec7ccf48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8995270177917966065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 104820251492029409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b690d0bf85984a47ad29fe3aa835d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Health: 10
+  MaxHealth: 10
+  CookingSkill: 80
 --- !u!1 &193564877978869984
 GameObject:
   m_ObjectHideFlags: 0
