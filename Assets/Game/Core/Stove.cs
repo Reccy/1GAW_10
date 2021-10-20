@@ -42,6 +42,13 @@ public class Stove : MonoBehaviour
         m_stage++;
     }
 
+    public void Destroy(Interactable interactable)
+    {
+        Log("You destroy the stove in disgust. Good riddance.");
+        interactable.Finish();
+        Destroy(gameObject);
+    }
+
     private IEnumerator FinishMeCoroutine(Interactable interactable)
     {
         interactable.CanCancel = false;

@@ -90,17 +90,19 @@ public class LevelManager : MonoBehaviour
         return null;
     }
 
-    public Interactable GetInteractableAtPosition(Vector3Int position)
+    public List<Interactable> GetInteractablesAtPosition(Vector3Int position)
     {
+        List<Interactable> res = new List<Interactable>();
+
         foreach (Interactable interactable in m_interactables)
         {
             if (interactable.CurrentCellPosition == position)
             {
-                return interactable;
+                res.Add(interactable);
             }
         }
 
-        return null;
+        return res;
     }
 
     private List<Vector3Int> FindAdjacentWalkableSpaces(Vector3Int position)

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Reccy.ScriptExtensions;
 
 public class PlayerInteractionManager : MonoBehaviour
 {
@@ -8,9 +9,21 @@ public class PlayerInteractionManager : MonoBehaviour
     private Brain m_playerBrain;
     private Vector3Int m_selectionCellPosition;
     private GameObject m_highlighter;
-    
-    private Interactable m_currentInteractable;
-    public Interactable CurrentInteractable => m_currentInteractable;
+
+    private int m_currentInteractableIndex = 0;
+    public Interactable CurrentInteractable
+    {
+        get
+        {
+            if (m_currentList == null || m_currentList.Count == 0)
+                return null;
+
+            return m_currentList[m_currentInteractableIndex];
+        }
+    }
+
+    private List<Interactable> m_currentList;
+    public List<Interactable> CurrentList => m_currentList;
 
     private Interactable m_currentSelected;
     public Interactable CurrentSelected => m_currentSelected;
@@ -18,11 +31,12 @@ public class PlayerInteractionManager : MonoBehaviour
     [SerializeField] private InputSource m_input;
     [SerializeField] private InputSource m_playerBrainInputSource;
 
-    private enum SelectionState { IDLE, SELECTING, PERFORMING };
+    private enum SelectionState { IDLE, SELECTING_CELL, SELECTING_ACTION, PERFORMING };
     private SelectionState m_ps;
 
     public bool IsIdle => m_ps == SelectionState.IDLE;
-    public bool IsSelecting => m_ps == SelectionState.SELECTING;
+    public bool IsSelectingCell => m_ps == SelectionState.SELECTING_CELL;
+    public bool IsSelectingAction => m_ps == SelectionState.SELECTING_ACTION;
     public bool IsPerforming => m_ps == SelectionState.PERFORMING;
 
     private void Awake()
@@ -30,6 +44,7 @@ public class PlayerInteractionManager : MonoBehaviour
         m_char = GetComponent<GridObject>();
         m_playerBrain = GetComponent<Brain>();
         m_highlighter = LevelManager.Instance.Highlighter;
+        m_currentList = new List<Interactable>();
         ResetHighlighterPosition();
     }
 
@@ -41,27 +56,46 @@ public class PlayerInteractionManager : MonoBehaviour
             {
                 BeginSelecting();
             }
-            else if (IsSelecting)
+            else if (IsSelectingCell)
             {
-                DoInteract();
+                if (m_currentList.Count == 0)
+                {
+                    CancelInteraction();
+                }
+                if (m_currentList.Count == 1)
+                {
+                    PerformAction();
+                }
+                else
+                {
+                    OpenActionMenu();
+                }
+            }
+            else if (IsSelectingAction)
+            {
+                PerformAction();
             }
         }
         else if (m_input.CancelInput())
         {
-            if (m_currentInteractable != null && !m_currentInteractable.CanCancel)
+            if (CurrentInteractable != null && !CurrentInteractable.CanCancel)
                 return;
 
             CancelInteraction();
         }
-        else if (IsSelecting)
+        else if (IsSelectingCell)
         {
             HandleMoveHighlighter();
+        }
+        else if (IsSelectingAction)
+        {
+            HandleActionHighlighter();
         }
     }
 
     private void BeginSelecting()
     {
-        m_ps = SelectionState.SELECTING;
+        m_ps = SelectionState.SELECTING_CELL;
         ResetHighlighterPosition();
         m_highlighter.SetActive(true);
 
@@ -69,22 +103,26 @@ public class PlayerInteractionManager : MonoBehaviour
         m_playerBrain.ReleaseControl();
     }
 
-    private void DoInteract()
+    private void OpenActionMenu()
     {
-        // Check for Interactable
-        m_currentInteractable = LevelManager.Instance.GetInteractableAtPosition(m_selectionCellPosition);
-
-        if (m_currentInteractable == null)
+        if (m_currentList.Count == 0)
         {
             CancelInteraction();
             return;
         }
 
+        m_ps = SelectionState.SELECTING_ACTION;
+        m_currentInteractableIndex = 0;
+    }
+
+    private void PerformAction()
+    {
         m_ps = SelectionState.PERFORMING;
+
         m_highlighter.SetActive(false);
 
-        m_currentInteractable.OnFinish.AddListener(AfterFinish);
-        m_currentInteractable.Perform();
+        CurrentInteractable.OnFinish.AddListener(AfterFinish);
+        CurrentInteractable.Perform();
     }
 
     private void CancelInteraction()
@@ -92,11 +130,12 @@ public class PlayerInteractionManager : MonoBehaviour
         m_ps = SelectionState.IDLE;
         m_highlighter.SetActive(false);
 
-        if (m_currentInteractable != null)
+        if (CurrentInteractable != null)
         {
-            m_currentInteractable.OnFinish.RemoveListener(CancelInteraction);
-            m_currentInteractable.Cancel();
-            m_currentInteractable = null;
+            CurrentInteractable.OnFinish.RemoveListener(CancelInteraction);
+            CurrentInteractable.Cancel();
+            m_currentList.Clear();
+            m_currentInteractableIndex = 0;
         }
 
         m_playerBrain.AssumeControl();
@@ -107,10 +146,11 @@ public class PlayerInteractionManager : MonoBehaviour
         m_ps = SelectionState.IDLE;
         m_highlighter.SetActive(false);
 
-        if (m_currentInteractable != null)
+        if (CurrentInteractable != null)
         {
-            m_currentInteractable.OnFinish.RemoveListener(CancelInteraction);
-            m_currentInteractable = null;
+            CurrentInteractable.OnFinish.RemoveListener(CancelInteraction);
+            m_currentList.Clear();
+            m_currentInteractableIndex = 0;
         }
 
         m_playerBrain.AssumeControl();
@@ -118,8 +158,8 @@ public class PlayerInteractionManager : MonoBehaviour
 
     private void HandleMoveHighlighter()
     {
-        var h = m_input.MoveHInput();
-        var v = m_input.MoveVInput();
+        var h = m_input.UIHInput();
+        var v = m_input.UIVInput();
 
         if (h == 1)
         {
@@ -138,8 +178,33 @@ public class PlayerInteractionManager : MonoBehaviour
             m_selectionCellPosition += Vector3Int.down;
         }
 
-        m_currentSelected = LevelManager.Instance.GetInteractableAtPosition(m_selectionCellPosition);
+        m_currentList = LevelManager.Instance.GetInteractablesAtPosition(m_selectionCellPosition);
         m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_selectionCellPosition);
+    }
+
+    private void HandleActionHighlighter()
+    {
+        var h = m_input.UIHInput();
+        var v = m_input.UIVInput();
+
+        void SetIdx(int idx) => m_currentInteractableIndex = Mathf2.Mod(idx, m_currentList.Count);
+
+        if (h == 1)
+        {
+            SetIdx(m_currentInteractableIndex + 1);
+        }
+        else if (h == -1)
+        {
+            SetIdx(m_currentInteractableIndex - 1);
+        }
+        else if (v == 1)
+        {
+            SetIdx(m_currentInteractableIndex + 1);
+        }
+        else if (v == 1)
+        {
+            SetIdx(m_currentInteractableIndex - 1);
+        }
     }
 
     private void ResetHighlighterPosition()

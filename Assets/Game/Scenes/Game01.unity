@@ -868,6 +868,8 @@ GameObject:
   - component: {fileID: 1229237436}
   - component: {fileID: 1229237435}
   - component: {fileID: 1229237434}
+  - component: {fileID: 1229237439}
+  - component: {fileID: 1229237440}
   - component: {fileID: 1229237438}
   m_Layer: 0
   m_Name: Stove
@@ -1001,6 +1003,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77fe3f4451177fa4bb77c0e929e41b91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1229237439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229237433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32162223187881e44a48e2af29d84a4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_canCancel: 1
+  m_selectedText: Destroy
+  OnPerform:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1229237438}
+        m_TargetAssemblyTypeName: Stove, Assembly-CSharp
+        m_MethodName: Destroy
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1229237434}
+          m_ObjectArgumentAssemblyTypeName: Interactable, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnFinish:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCancel:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1229237440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229237433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32162223187881e44a48e2af29d84a4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_canCancel: 1
+  m_selectedText: Cook
+  OnPerform:
+    m_PersistentCalls:
+      m_Calls: []
+  OnFinish:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCancel:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1719935923
 PrefabInstance:
   m_ObjectHideFlags: 0

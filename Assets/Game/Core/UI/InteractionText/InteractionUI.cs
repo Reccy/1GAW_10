@@ -16,16 +16,24 @@ public class InteractionUI : MonoBehaviour
 
     private void Update()
     {
-        if (m_pim.IsSelecting)
+        if (m_pim.IsSelectingCell)
         {
-            if (m_pim.CurrentSelected != null)
+            if (m_pim.CurrentList.Count == 1)
             {
-                m_text.text = "Selected: " + m_pim.CurrentSelected.SelectedText;
+                m_text.text = "Actions: " + m_pim.CurrentList[0].SelectedText;
+            }
+            else if (m_pim.CurrentList.Count > 1)
+            {
+                m_text.text = "Actions: " + m_pim.CurrentList[0].SelectedText + $" [+{m_pim.CurrentList.Count - 1}]";
             }
             else
             {
                 m_text.text = "";
             }
+        }
+        else if (m_pim.IsSelectingAction)
+        {
+            m_text.text = $"<- Selected: {m_pim.CurrentInteractable.SelectedText} ->";
         }
         else if (m_pim.IsPerforming)
         {

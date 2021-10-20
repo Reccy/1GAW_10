@@ -10,6 +10,8 @@ public class InputSource : MonoBehaviour
 
     private int m_moveVInput = 0;
     private int m_moveHInput = 0;
+    private int m_uiHInput = 0;
+    private int m_uiVInput = 0;
     private bool m_actionInput = false;
     private bool m_cancelInput = false;
 
@@ -38,6 +40,24 @@ public class InputSource : MonoBehaviour
             m_moveHInput = 1;
         }
 
+        if (m_player.GetButtonDown("UIUp"))
+        {
+            m_uiVInput = 1;
+        }
+        else if (m_player.GetButtonDown("UIDown"))
+        {
+            m_uiVInput = -1;
+        }
+
+        if (m_player.GetButtonDown("UILeft"))
+        {
+            m_uiHInput = -1;
+        }
+        else if (m_player.GetButtonDown("UIRight"))
+        {
+            m_uiHInput = 1;
+        }
+
         if (m_player.GetButtonDown("Action"))
         {
             m_actionInput = true;
@@ -53,35 +73,23 @@ public class InputSource : MonoBehaviour
     {
         m_moveHInput = default;
         m_moveVInput = default;
+        m_uiHInput = default;
+        m_uiVInput = default;
         m_actionInput = default;
         m_cancelInput = default;
     }
 
-    public int MoveVInput()
-    {
-        var res = m_moveVInput;
-        m_moveVInput = 0;
-        return res;
-    }
+    public int MoveVInput() => GetAndReset(ref m_moveVInput);
+    public int MoveHInput() => GetAndReset(ref m_moveHInput);
+    public int UIHInput() => GetAndReset(ref m_uiHInput);
+    public int UIVInput() => GetAndReset(ref m_uiVInput);
+    public bool ActionInput() => GetAndReset(ref m_actionInput);
+    public bool CancelInput() => GetAndReset(ref m_cancelInput);
 
-    public int MoveHInput()
+    private T GetAndReset<T>(ref T value)
     {
-        var res = m_moveHInput;
-        m_moveHInput = 0;
-        return res;
-    }
-
-    public bool ActionInput()
-    {
-        var res = m_actionInput;
-        m_actionInput = false;
-        return res;
-    }
-
-    public bool CancelInput()
-    {
-        var res = m_cancelInput;
-        m_cancelInput = false;
+        var res = value;
+        value = default;
         return res;
     }
 }
