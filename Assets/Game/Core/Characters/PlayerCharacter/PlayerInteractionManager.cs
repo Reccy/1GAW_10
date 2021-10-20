@@ -9,27 +9,40 @@ public class PlayerInteractionManager : MonoBehaviour
     private Brain m_playerBrain;
     private Vector3Int m_selectionCellPosition;
     private GameObject m_highlighter;
+    private SpriteRenderer m_highlighterSprite;
 
     private int m_currentInteractableIndex = 0;
     public Interactable CurrentInteractable
     {
         get
         {
-            if (m_currentList == null || m_currentList.Count == 0)
+            if (m_currentInteractionList == null || m_currentInteractionList.Count == 0)
                 return null;
 
-            return m_currentList[m_currentInteractableIndex];
+            return m_currentInteractionList[m_currentInteractableIndex];
         }
     }
 
-    private List<Interactable> m_currentList;
-    public List<Interactable> CurrentList => m_currentList;
+    private List<Interactable> m_currentInteractionList;
+    public List<Interactable> CurrentList => m_currentInteractionList;
 
     private Interactable m_currentSelected;
     public Interactable CurrentSelected => m_currentSelected;
 
+    private Brain m_currentHighlightedBrain;
+    public Brain CurrentHighlightedBrain => m_currentHighlightedBrain;
+
+    private Brain m_currentBrain;
+    public Brain CurrentBrain => m_currentBrain;
+
+    [Header("Input Setup")]
     [SerializeField] private InputSource m_input;
     [SerializeField] private InputSource m_playerBrainInputSource;
+
+    [Header("Highlighter Colors")]
+    [SerializeField] private Color m_hurtColor;
+    [SerializeField] private Color m_controlColor;
+    [SerializeField] private Color m_interactColor;
 
     private enum SelectionState { IDLE, SELECTING_CELL, SELECTING_ACTION, PERFORMING };
     private SelectionState m_ps;
@@ -39,57 +52,124 @@ public class PlayerInteractionManager : MonoBehaviour
     public bool IsSelectingAction => m_ps == SelectionState.SELECTING_ACTION;
     public bool IsPerforming => m_ps == SelectionState.PERFORMING;
 
+    private enum InteractionMode { ACTION, HURT, CONTROL }
+    private InteractionMode m_im;
+
+    public bool IsActionIntent => m_im == InteractionMode.ACTION;
+    public bool IsHurtIntent => m_im == InteractionMode.HURT;
+    public bool IsControlIntent => m_im == InteractionMode.CONTROL;
+
     private void Awake()
     {
         m_char = GetComponent<GridObject>();
         m_playerBrain = GetComponent<Brain>();
         m_highlighter = LevelManager.Instance.Highlighter;
-        m_currentList = new List<Interactable>();
+        m_highlighterSprite = m_highlighter.GetComponent<SpriteRenderer>();
+        m_currentInteractionList = new List<Interactable>();
+
+        m_currentBrain = m_playerBrain;
+
         ResetHighlighterPosition();
     }
 
     private void FixedUpdate()
     {
-        if (m_input.ActionInput())
-        {
-            if (IsIdle)
-            {
-                BeginSelecting();
-            }
-            else if (IsSelectingCell)
-            {
-                if (m_currentList.Count == 0)
-                {
-                    CancelInteraction();
-                }
-                if (m_currentList.Count == 1)
-                {
-                    PerformAction();
-                }
-                else
-                {
-                    OpenActionMenu();
-                }
-            }
-            else if (IsSelectingAction)
-            {
-                PerformAction();
-            }
-        }
-        else if (m_input.CancelInput())
+        if (m_input.CancelInput())
         {
             if (CurrentInteractable != null && !CurrentInteractable.CanCancel)
                 return;
 
             CancelInteraction();
         }
+        else if (IsIdle)
+        {
+            if (m_input.ActionInput())
+            {
+                m_im = InteractionMode.ACTION;
+                m_highlighterSprite.color = m_interactColor;
+                BeginSelecting();
+            }
+            else if (m_input.ControlInput())
+            {
+                m_im = InteractionMode.CONTROL;
+                m_highlighterSprite.color = m_controlColor;
+                BeginSelecting();
+            }
+            else if (m_input.HurtInput())
+            {
+                m_im = InteractionMode.HURT;
+                m_highlighterSprite.color = m_hurtColor;
+                BeginSelecting();
+            }
+        }
         else if (IsSelectingCell)
         {
-            HandleMoveHighlighter();
+            if (IsActionIntent)
+            {
+                if (m_input.ActionInput())
+                {
+                    if (m_currentInteractionList.Count == 0)
+                    {
+                        CancelInteraction();
+                        return;
+                    }
+                    else if (m_currentInteractionList.Count == 1)
+                    {
+                        PerformAction();
+                        return;
+                    }
+                    else
+                    {
+                        OpenActionMenu();
+                        return;
+                    }
+                }
+                else
+                {
+                    HandleMoveHighlighter();
+                }
+            }
+            else if (IsControlIntent)
+            {
+                if (m_input.ActionInput())
+                {
+                    if (m_currentHighlightedBrain == null)
+                    {
+                        CancelInteraction();
+                        return;
+                    }
+                    else
+                    {
+                        AssumeControl();
+                    }
+                }
+                else
+                {
+                    HandleMoveHighlighter();
+                }
+            }
+            else if (IsHurtIntent)
+            {
+
+            }
         }
         else if (IsSelectingAction)
         {
-            HandleActionHighlighter();
+            if (IsActionIntent)
+            {
+                if (m_input.ActionInput())
+                {
+                    PerformAction();
+                }
+                else
+                {
+                    HandleActionHighlighter();
+                }
+            }
+            else
+            {
+
+            }
         }
     }
 
@@ -100,12 +180,12 @@ public class PlayerInteractionManager : MonoBehaviour
         m_highlighter.SetActive(true);
 
         m_input.Clear();
-        m_playerBrain.ReleaseControl();
+        m_currentBrain.ReleaseControl();
     }
 
     private void OpenActionMenu()
     {
-        if (m_currentList.Count == 0)
+        if (m_currentInteractionList.Count == 0)
         {
             CancelInteraction();
             return;
@@ -125,6 +205,19 @@ public class PlayerInteractionManager : MonoBehaviour
         CurrentInteractable.Perform();
     }
 
+    private void AssumeControl()
+    {
+        m_ps = SelectionState.IDLE;
+
+        m_highlighter.SetActive(false);
+
+        m_currentBrain.ReleaseControl();
+
+        m_currentBrain = m_currentHighlightedBrain;
+
+        m_currentBrain.AssumeControl();
+    }
+
     private void CancelInteraction()
     {
         m_ps = SelectionState.IDLE;
@@ -134,11 +227,11 @@ public class PlayerInteractionManager : MonoBehaviour
         {
             CurrentInteractable.OnFinish.RemoveListener(CancelInteraction);
             CurrentInteractable.Cancel();
-            m_currentList.Clear();
+            m_currentInteractionList.Clear();
             m_currentInteractableIndex = 0;
         }
 
-        m_playerBrain.AssumeControl();
+        m_currentBrain.AssumeControl();
     }
 
     private void AfterFinish()
@@ -149,11 +242,11 @@ public class PlayerInteractionManager : MonoBehaviour
         if (CurrentInteractable != null)
         {
             CurrentInteractable.OnFinish.RemoveListener(CancelInteraction);
-            m_currentList.Clear();
+            m_currentInteractionList.Clear();
             m_currentInteractableIndex = 0;
         }
 
-        m_playerBrain.AssumeControl();
+        m_currentBrain.AssumeControl();
     }
 
     private void HandleMoveHighlighter()
@@ -178,7 +271,11 @@ public class PlayerInteractionManager : MonoBehaviour
             m_selectionCellPosition += Vector3Int.down;
         }
 
-        m_currentList = LevelManager.Instance.GetInteractablesAtPosition(m_selectionCellPosition);
+        if (IsActionIntent)
+            m_currentInteractionList = LevelManager.Instance.GetInteractablesAtPosition(m_selectionCellPosition);
+        else if (IsControlIntent)
+            m_currentHighlightedBrain = LevelManager.Instance.GetBrainAtPosition(m_selectionCellPosition);
+
         m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_selectionCellPosition);
     }
 
@@ -187,7 +284,7 @@ public class PlayerInteractionManager : MonoBehaviour
         var h = m_input.UIHInput();
         var v = m_input.UIVInput();
 
-        void SetIdx(int idx) => m_currentInteractableIndex = Mathf2.Mod(idx, m_currentList.Count);
+        void SetIdx(int idx) => m_currentInteractableIndex = Mathf2.Mod(idx, m_currentInteractionList.Count);
 
         if (h == 1)
         {
@@ -209,7 +306,7 @@ public class PlayerInteractionManager : MonoBehaviour
 
     private void ResetHighlighterPosition()
     {
-        m_selectionCellPosition = m_char.CurrentCellPosition;
-        m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_char.CurrentCellPosition);
+        m_selectionCellPosition = m_currentBrain.CurrentCellPosition;
+        m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_currentBrain.CurrentCellPosition);
     }
 }

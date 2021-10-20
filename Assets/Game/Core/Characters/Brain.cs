@@ -15,6 +15,8 @@ public class Brain : MonoBehaviour
     [SerializeField] private BrainState m_brainState;
     private enum BrainState { IDLE, AI, PC };
 
+    public Vector3Int CurrentCellPosition => m_character.CurrentCellPosition;
+
     private bool m_isPlayerCharacter = false;
 
     private void Awake()

@@ -13,6 +13,8 @@ public class InputSource : MonoBehaviour
     private int m_uiHInput = 0;
     private int m_uiVInput = 0;
     private bool m_actionInput = false;
+    private bool m_controlInput = false;
+    private bool m_hurtInput = false;
     private bool m_cancelInput = false;
 
     private void Awake()
@@ -63,6 +65,16 @@ public class InputSource : MonoBehaviour
             m_actionInput = true;
         }
 
+        if (m_player.GetButtonDown("Hurt"))
+        {
+            m_hurtInput = true;
+        }
+
+        if (m_player.GetButtonDown("Control"))
+        {
+            m_controlInput = true;
+        }
+
         if (m_player.GetButtonDown("Cancel"))
         {
             m_cancelInput = true;
@@ -76,6 +88,8 @@ public class InputSource : MonoBehaviour
         m_uiHInput = default;
         m_uiVInput = default;
         m_actionInput = default;
+        m_controlInput = default;
+        m_hurtInput = default;
         m_cancelInput = default;
     }
 
@@ -84,6 +98,8 @@ public class InputSource : MonoBehaviour
     public int UIHInput() => GetAndReset(ref m_uiHInput);
     public int UIVInput() => GetAndReset(ref m_uiVInput);
     public bool ActionInput() => GetAndReset(ref m_actionInput);
+    public bool ControlInput() => GetAndReset(ref m_controlInput);
+    public bool HurtInput() => GetAndReset(ref m_hurtInput);
     public bool CancelInput() => GetAndReset(ref m_cancelInput);
 
     private T GetAndReset<T>(ref T value)

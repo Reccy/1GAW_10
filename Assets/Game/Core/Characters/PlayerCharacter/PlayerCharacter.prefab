@@ -77,6 +77,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_input: {fileID: 8045847793266379674}
   m_playerBrainInputSource: {fileID: 8643543378501998211}
+  m_hurtColor: {r: 0.46226418, g: 0.115144715, b: 0.085039176, a: 1}
+  m_controlColor: {r: 0.8207547, g: 0.7020341, b: 0.08904416, a: 1}
+  m_interactColor: {r: 0.069597736, g: 0.27216223, b: 0.6415094, a: 1}
 --- !u!114 &2144218116477630898
 MonoBehaviour:
   m_ObjectHideFlags: 0
