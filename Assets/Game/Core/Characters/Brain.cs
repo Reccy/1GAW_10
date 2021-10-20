@@ -33,6 +33,22 @@ public class Brain : MonoBehaviour
         m_isPlayerCharacter = m_brainState == BrainState.PC;
     }
 
+    private void OnEnable()
+    {
+        Attributes.OnHealthExhausted += OnHealthExhausted;
+    }
+
+    private void OnDisable()
+    {
+        Attributes.OnHealthExhausted -= OnHealthExhausted;
+    }
+
+    private void OnHealthExhausted()
+    {
+        LevelManager.Instance.TextLog.Log($"{DisplayName} has perished");
+        Destroy(gameObject);
+    }
+
     public void ReleaseControl()
     {
         m_input.Clear();

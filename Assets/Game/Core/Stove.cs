@@ -10,7 +10,7 @@ public class Stove : MonoBehaviour
 
     private void Log(string s)
     {
-        LevelManager.Instance.TextLog.AddLine(s);
+        LevelManager.Instance.TextLog.Log(s);
     }
 
     public void OnUsed(Brain brain, Interactable interactable)

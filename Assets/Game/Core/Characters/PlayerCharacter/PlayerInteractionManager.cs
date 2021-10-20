@@ -30,7 +30,17 @@ public class PlayerInteractionManager : MonoBehaviour
     public Brain CurrentHighlightedBrain => m_currentHighlightedBrain;
 
     private Stack<Brain> m_brainStack;
-    public Brain CurrentBrain => m_brainStack.Peek();
+    public Brain CurrentBrain
+    {
+        get
+        {
+            if (m_brainStack.Count == 0)
+                return null;
+
+            return m_brainStack.Peek();
+        }
+    }
+
 
     public List<string> BrainStackNames
     {
@@ -83,6 +93,28 @@ public class PlayerInteractionManager : MonoBehaviour
         m_brainStack.Push(m_playerBrain);
 
         ResetHighlighterPosition();
+    }
+
+    private void OnEnable()
+    {
+        m_playerBrain.Attributes.OnHealthExhausted += OnPlayerDeath;
+    }
+
+    private void OnDisable()
+    {
+        m_playerBrain.Attributes.OnHealthExhausted -= OnPlayerDeath;
+    }
+
+    private void OnPlayerDeath()
+    {
+        while (m_brainStack.Count > 0)
+        {
+            m_brainStack.Pop().ReleaseControl();
+        }
+
+        LevelManager.Instance.TextLog.Log("You have died... GAME OVER");
+
+        Destroy(gameObject);
     }
 
     private void FixedUpdate()
@@ -146,7 +178,7 @@ public class PlayerInteractionManager : MonoBehaviour
                 }
                 else
                 {
-                    HandleMoveHighlighter();
+                    HandleSelectionHighlighter();
                 }
             }
             else if (IsControlIntent)
@@ -165,12 +197,28 @@ public class PlayerInteractionManager : MonoBehaviour
                 }
                 else
                 {
-                    HandleMoveHighlighter();
+                    HandleSelectionHighlighter();
                 }
             }
             else if (IsHurtIntent)
             {
-
+                if (m_input.ActionInput())
+                {
+                    if (m_currentHighlightedBrain == null)
+                    {
+                        CancelInteraction();
+                        return;
+                    }
+                    else
+                    {
+                        PerformHarm();
+                        return;
+                    }
+                }
+                else
+                {
+                    HandleSelectionHighlighter();
+                }
             }
         }
         else if (IsSelectingAction)
@@ -181,7 +229,8 @@ public class PlayerInteractionManager : MonoBehaviour
                     return;
 
                 CancelInteraction();
-            } else if (IsActionIntent)
+            }
+            else if (IsActionIntent)
             {
                 if (m_input.ActionInput())
                 {
@@ -189,12 +238,8 @@ public class PlayerInteractionManager : MonoBehaviour
                 }
                 else
                 {
-                    HandleActionHighlighter();
+                    HandleActionMenuHighlighter();
                 }
-            }
-            else
-            {
-
             }
         }
     }
@@ -229,6 +274,21 @@ public class PlayerInteractionManager : MonoBehaviour
 
         CurrentInteractable.OnFinish.AddListener(AfterFinish);
         CurrentInteractable.Perform(CurrentBrain);
+    }
+
+    private void PerformHarm()
+    {
+        m_ps = SelectionState.IDLE;
+
+        m_highlighter.SetActive(false);
+
+        var damage = CurrentBrain.Attributes.MeleeWeapon.Damage;
+
+        Log($"{CurrentBrain.DisplayName} {CurrentBrain.Attributes.MeleeWeapon.GetAttackVerb()} {m_currentHighlightedBrain.DisplayName} for {damage}HP");
+
+        CurrentBrain.AssumeControl();
+        
+        m_currentHighlightedBrain.Attributes.Harm(damage);
     }
 
     private void AssumeControl()
@@ -288,7 +348,7 @@ public class PlayerInteractionManager : MonoBehaviour
         CurrentBrain.AssumeControl();
     }
 
-    private void HandleMoveHighlighter()
+    private void HandleSelectionHighlighter()
     {
         var h = m_input.UIHInput();
         var v = m_input.UIVInput();
@@ -322,11 +382,15 @@ public class PlayerInteractionManager : MonoBehaviour
             if (m_brainStack.Contains(m_currentHighlightedBrain))
                 m_currentHighlightedBrain = null;
         }
+        else if (IsHurtIntent)
+        {
+            m_currentHighlightedBrain = LevelManager.Instance.GetBrainAtPosition(m_selectionCellPosition);
+        }
 
         m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(m_selectionCellPosition);
     }
 
-    private void HandleActionHighlighter()
+    private void HandleActionMenuHighlighter()
     {
         var h = m_input.UIHInput();
         var v = m_input.UIVInput();
@@ -356,4 +420,6 @@ public class PlayerInteractionManager : MonoBehaviour
         m_selectionCellPosition = CurrentBrain.CurrentCellPosition;
         m_highlighter.transform.position = LevelManager.Instance.Grid.GetCellCenterWorld(CurrentBrain.CurrentCellPosition);
     }
+
+    private void Log(string str) => LevelManager.Instance.TextLog.Log(str);
 }

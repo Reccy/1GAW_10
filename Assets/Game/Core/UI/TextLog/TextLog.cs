@@ -12,7 +12,7 @@ public class TextLog : MonoBehaviour
         m_text = GetComponent<TMP_Text>();
     }
 
-    public void AddLine(string line)
+    public void Log(string line)
     {
         m_text.text += $"\n\n{line}";
     }

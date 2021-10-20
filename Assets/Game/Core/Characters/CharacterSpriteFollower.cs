@@ -17,6 +17,12 @@ public class CharacterSpriteFollower : MonoBehaviour
 
     private void Update()
     {
+        if (m_follower == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         transform.position = Vector3.MoveTowards(transform.position, m_follower.transform.position, Time.deltaTime * m_followSpeed);
     }
 }

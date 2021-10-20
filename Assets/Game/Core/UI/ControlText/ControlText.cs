@@ -16,6 +16,12 @@ public class ControlText : MonoBehaviour
 
     private void Update()
     {
+        if (m_pim.CurrentBrain == null)
+        {
+            m_text.text = "=== GAME OVER ===\n";
+            return;
+        }
+
         var names = m_pim.BrainStackNames;
 
         m_text.text = "=== Current Brain ===\n";

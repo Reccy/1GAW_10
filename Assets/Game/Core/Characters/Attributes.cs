@@ -10,4 +10,36 @@ public class Attributes : MonoBehaviour
 
     [Header("Skills")]
     [SerializeField] public int CookingSkill = 10;
+
+    [Header("Combat")]
+    [SerializeField] public MeleeWeapon MeleeWeapon;
+    [SerializeField] public RangedWeapon RangedWeapon;
+
+    public delegate void OnHealthExhaustedEvent();
+    public OnHealthExhaustedEvent OnHealthExhausted;
+
+    public void Harm(int damage)
+    {
+        Health -= damage;
+
+        HealthBoundsCheck();
+    }
+
+    public void Heal(int recovery)
+    {
+        Health += recovery;
+
+        HealthBoundsCheck();
+    }
+
+    private void HealthBoundsCheck()
+    {
+        if (Health <= 0)
+        {
+            if (OnHealthExhausted != null)
+                OnHealthExhausted();
+        }
+
+        Health = Mathf.Clamp(Health, 0, MaxHealth);
+    }
 }
