@@ -89,7 +89,7 @@ MonoBehaviour:
   Health: 10
   MaxHealth: 10
   CookingSkill: 20
-  MeleeWeapon: {fileID: 11400000, guid: 0c90db2e26cdd7e4c8955890c1322d74, type: 2}
+  MeleeWeapon: {fileID: 11400000, guid: 349584398bdf921459c038afebbb6323, type: 2}
   RangedWeapon: {fileID: 11400000, guid: 99fb152bb9dfbee418a14b75c196d3d5, type: 2}
 --- !u!1 &9166974137884275293
 GameObject:

@@ -144,8 +144,6 @@ public class PlayerInteractionManager : MonoBehaviour
 
     private void OnBrainDeath(Brain deadBrain)
     {
-        Debug.Log($"{deadBrain.DisplayName} died");
-
         do
         {
             var brain = m_brainStack.Pop();
@@ -327,13 +325,27 @@ public class PlayerInteractionManager : MonoBehaviour
 
         m_highlighter.SetActive(false);
 
-        var damage = CurrentBrain.Attributes.MeleeWeapon.Damage;
+        Weapon weapon = null;
 
-        Log($"{CurrentBrain.DisplayName} {CurrentBrain.Attributes.MeleeWeapon.GetAttackVerb()} {m_currentHighlightedBrain.DisplayName} for {damage}HP");
+        if (LevelManager.Instance.IsInGrabRange(CurrentBrain.CurrentCellPosition, m_currentHighlightedBrain.CurrentCellPosition))
+        {
+            weapon = CurrentBrain.Attributes.MeleeWeapon;
+        }
+        else if (LevelManager.Instance.IsInLineOfSight(CurrentBrain.CurrentCellPosition, m_currentHighlightedBrain.CurrentCellPosition))
+        {
+            weapon = CurrentBrain.Attributes.RangedWeapon;
+        }
+        else
+        {
+            CancelInteraction();
+            return;
+        }
+
+        Log($"{CurrentBrain.DisplayName} {weapon.GetAttackVerb()} {m_currentHighlightedBrain.DisplayName} for {weapon.Damage}HP");
 
         CurrentBrain.AssumeControl();
         
-        m_currentHighlightedBrain.Attributes.Harm(damage);
+        m_currentHighlightedBrain.Attributes.Harm(weapon.Damage);
     }
 
     private void AssumeControl()

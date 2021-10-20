@@ -1,5 +1,5 @@
+using Reccy.DebugExtensions;
 using Reccy.ScriptExtensions;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -113,7 +113,7 @@ public class LevelManager : MonoBehaviour
     private List<Vector3Int> FindAdjacentWalkableSpaces(Vector3Int position)
     {
         List<Vector3Int> results = new List<Vector3Int>();
-        
+
         void AddIfWalkable(Vector3Int testPos)
         {
             if (IsWalkable(testPos))
@@ -133,5 +133,132 @@ public class LevelManager : MonoBehaviour
     public bool IsWalkable(Vector3Int position)
     {
         return m_walkableTilemap.GetTile(position) != null;
+    }
+
+    public bool IsInGrabRange(Vector3Int from, Vector3Int to)
+    {
+        var res = Pathfind(from, to, useDiagonals: true);
+        float totalDistance = Vector3Int2.ListLength(res);
+
+        return totalDistance <= 1.5f;
+    }
+
+    public bool IsInLineOfSight(Vector3Int from, Vector3Int to)
+    {
+        var optimalPath = Pathfind(from, to);
+        var line = Pathfind(from, to, ignoreObstacles: true);
+
+        return optimalPath.IsEqual(line);
+    }
+
+    public List<Vector3Int> Pathfind(Vector3Int startPos, Vector3Int endPos, bool useDiagonals = false, bool ignoreObstacles = false)
+    {
+        var original = Pathfind((Vector2Int)startPos, (Vector2Int)endPos, useDiagonals, ignoreObstacles);
+
+        List<Vector3Int> result = new List<Vector3Int>();
+
+        foreach (var v in original)
+        {
+            result.Add((Vector3Int)v);
+        }
+
+        return result;
+    }
+
+    private List<Vector2Int> Pathfind(Vector2Int startPos, Vector2Int endPos, bool useDiagonals = false, bool ignoreObstacles = false)
+    {
+        // Prepare A*
+        Vector2Int startCellIndex = startPos;
+        Vector2Int endCellIndex = endPos;
+
+        Vector2Int current;
+        List<Vector2Int> frontier = new List<Vector2Int>();
+        Dictionary<Vector2Int, float> cellPriority = new Dictionary<Vector2Int, float>();
+        Dictionary<Vector2Int, float> currentCost = new Dictionary<Vector2Int, float>();
+        Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
+
+        Vector2Int nullV2Int = new Vector2Int(int.MinValue, int.MinValue); // Fake "null" value to determine end of cameFrom
+
+        // Start the algorithm
+        frontier.Add(startCellIndex);
+        cellPriority.Add(startCellIndex, 0);
+        currentCost.Add(startCellIndex, 0);
+        cameFrom.Add(startCellIndex, nullV2Int);
+
+        while (frontier.Count > 0)
+        {
+            current = cellPriority.GetSmallest();
+            cellPriority.Remove(current);
+
+            if (current == endCellIndex)
+                break;
+
+            foreach (Vector2Int next in GetNeighbours(current, useDiagonals: useDiagonals, ignoreObstacles: ignoreObstacles))
+            {
+                float newCost = currentCost[current] + Vector2Int.Distance(current, next);
+
+                if (!currentCost.ContainsKey(next) || newCost < currentCost[next])
+                {
+                    currentCost[next] = newCost;
+
+                    float priority = newCost + Vector2Int.Distance(next, endCellIndex);
+
+                    if (!cellPriority.ContainsKey(next))
+                        cellPriority.Add(next, priority);
+                    else
+                        cellPriority[next] = priority;
+
+                    frontier.Add(next);
+
+                    if (!cameFrom.ContainsKey(next))
+                        cameFrom.Add(next, current);
+                    else
+                        cameFrom[next] = current;
+                }
+            }
+        }
+
+        // Start backtracking through cameFrom to find the cell
+        List<Vector2Int> path = new List<Vector2Int>();
+
+        current = endCellIndex;
+        while (cameFrom[current] != nullV2Int)
+        {
+            path.Add(new Vector2Int(current.x, current.y));
+            current = cameFrom[current];
+        }
+
+        // Add original start and end positions to path
+        path.Add(startPos);
+        path.Reverse();
+        path.Add(endPos);
+
+        return path;
+    }
+
+    private List<Vector2Int> GetNeighbours(Vector2Int cellPos, bool useDiagonals = false, bool ignoreObstacles = false)
+    {
+        List<Vector2Int> result = new List<Vector2Int>();
+
+        void AddIfValid(Vector2Int position)
+        {
+            if (ignoreObstacles || m_walkableTilemap.GetTile((Vector3Int)position) != null)
+                result.Add(position);
+        }
+
+        AddIfValid(cellPos + Vector2Int.up);
+        AddIfValid(cellPos + Vector2Int.left);
+        AddIfValid(cellPos + Vector2Int.right);
+        AddIfValid(cellPos + Vector2Int.down);
+
+        if (useDiagonals)
+        {
+            AddIfValid(cellPos + Vector2Int.up + Vector2Int.left);
+            AddIfValid(cellPos + Vector2Int.up + Vector2Int.right);
+            AddIfValid(cellPos + Vector2Int.down + Vector2Int.left);
+            AddIfValid(cellPos + Vector2Int.down + Vector2Int.right);
+        }
+
+        return result;
     }
 }

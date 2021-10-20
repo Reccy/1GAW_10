@@ -12,8 +12,8 @@ public class Attributes : MonoBehaviour
     [SerializeField] public int CookingSkill = 10;
 
     [Header("Combat")]
-    [SerializeField] public MeleeWeapon MeleeWeapon;
-    [SerializeField] public RangedWeapon RangedWeapon;
+    [SerializeField] public Weapon MeleeWeapon;
+    [SerializeField] public Weapon RangedWeapon;
 
     public delegate void OnHealthExhaustedEvent();
     public OnHealthExhaustedEvent OnHealthExhausted;

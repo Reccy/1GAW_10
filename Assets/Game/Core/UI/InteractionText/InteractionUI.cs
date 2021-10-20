@@ -56,6 +56,19 @@ public class InteractionUI : MonoBehaviour
                     {
                         m_text.text = $"Hurt: {m_pim.CurrentHighlightedBrain.DisplayName}";
                         
+                        if (LevelManager.Instance.IsInGrabRange(m_pim.CurrentBrain.CurrentCellPosition, m_pim.CurrentHighlightedBrain.CurrentCellPosition))
+                        {
+                            m_text.text += $" (Melee for {m_pim.CurrentBrain.Attributes.MeleeWeapon.Damage} HP)";
+                        }
+                        else if (LevelManager.Instance.IsInLineOfSight(m_pim.CurrentBrain.CurrentCellPosition, m_pim.CurrentHighlightedBrain.CurrentCellPosition))
+                        {
+                            m_text.text += $" (Ranged for {m_pim.CurrentBrain.Attributes.RangedWeapon.Damage} HP)";
+                        }
+                        else
+                        {
+                            m_text.text += $" (Can't Hit!)";
+                        }
+
                         if (m_pim.CurrentHighlightedBrain == m_pim.PlayerBrain)
                         {
                             m_text.text += $" (YOU!)";

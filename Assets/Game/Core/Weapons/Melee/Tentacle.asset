@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b16925361f661e14790e09ec28d9c399, type: 3}
+  m_Script: {fileID: 11500000, guid: 044066e4b5dd9cd44907dd97b81151a5, type: 3}
   m_Name: Tentacle
   m_EditorClassIdentifier: 
-  Damage: 5
+  Damage: 6
   AttackVerbs:
-  - swung its tentacle at
-  - ravaged
-  - pummeled
+  - snapped at
+  - tentacle'd
+  - tore apart

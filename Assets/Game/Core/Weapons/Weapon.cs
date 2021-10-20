@@ -1,10 +1,10 @@
-using Reccy.ScriptExtensions;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Reccy.ScriptExtensions;
 
-[CreateAssetMenu(fileName = "New Ranged Weapon", menuName = "Weapons/Ranged")]
-public class RangedWeapon : ScriptableObject
+[CreateAssetMenu(fileName = "New Weapon", menuName = "Weapon")]
+public class Weapon : ScriptableObject
 {
     public int Damage = 5;
     public string[] AttackVerbs = { "attacked" };
