@@ -437,21 +437,29 @@ public class PlayerInteractionManager : MonoBehaviour
         var h = m_input.UIHInput();
         var v = m_input.UIVInput();
 
+        void MoveSelection(Vector3Int newPosition)
+        {
+            if (!LevelManager.Instance.IsInFogOfWar(newPosition))
+            {
+                m_selectionCellPosition = newPosition;
+            }
+        }
+
         if (h == 1)
         {
-            m_selectionCellPosition += Vector3Int.right;
+            MoveSelection(m_selectionCellPosition + Vector3Int.right);
         }
         else if (h == -1)
         {
-            m_selectionCellPosition += Vector3Int.left;
+            MoveSelection(m_selectionCellPosition + Vector3Int.left);
         }
         else if (v == 1)
         {
-            m_selectionCellPosition += Vector3Int.up;
+            MoveSelection(m_selectionCellPosition + Vector3Int.up);
         }
         else if (v == -1)
         {
-            m_selectionCellPosition += Vector3Int.down;
+            MoveSelection(m_selectionCellPosition + Vector3Int.down);
         }
 
         if (IsActionIntent)

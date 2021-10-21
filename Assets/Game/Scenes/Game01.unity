@@ -1130,6 +1130,8 @@ GameObject:
   - component: {fileID: 1229237434}
   - component: {fileID: 1229237439}
   - component: {fileID: 1229237438}
+  - component: {fileID: 1229237441}
+  - component: {fileID: 1229237440}
   m_Layer: 0
   m_Name: Stove
   m_TagString: Untagged
@@ -1184,6 +1186,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2717bd497fa37543982d00abdde7bed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_canPush: 1
+  m_transparent: 1
 --- !u!212 &1229237436
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1282,6 +1286,54 @@ MonoBehaviour:
       - m_Target: {fileID: 1229237438}
         m_TargetAssemblyTypeName: Stove, Assembly-CSharp
         m_MethodName: Destroy
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnFinish:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCancel:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1229237440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229237433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e560ac491f32df40916677a81573f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_door: {fileID: 2079514032}
+--- !u!114 &1229237441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229237433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32162223187881e44a48e2af29d84a4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_canCancel: 1
+  m_selectedText: Unlock Cell Door
+  OnPerform:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1229237440}
+        m_TargetAssemblyTypeName: UnlockDoorInteraction, Assembly-CSharp
+        m_MethodName: UnlockDoor
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1591,6 +1643,154 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1423369f18f5d0e459efafa1066a51c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2079514032
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2079514033}
+  - component: {fileID: 2079514035}
+  - component: {fileID: 2079514034}
+  - component: {fileID: 2079514037}
+  - component: {fileID: 2079514036}
+  m_Layer: 0
+  m_Name: GlassDoor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2079514033
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079514032}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.5, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2079514034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079514032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2717bd497fa37543982d00abdde7bed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_canPush: 0
+  m_transparent: 1
+--- !u!212 &2079514035
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079514032}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: -1521518817
+  m_SortingLayer: 2
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 07d2b61dd09eff74f9eec8a5074116d8, type: 3}
+  m_Color: {r: 0.53123885, g: 0.7987775, b: 0.8867924, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.3, y: 0.27}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &2079514036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079514032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11d14bdef142042b365cc549f22b46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_examineText: It's a glass door. I wonder if there's a way to open it?
+--- !u!114 &2079514037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079514032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32162223187881e44a48e2af29d84a4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_canCancel: 1
+  m_selectedText: Examine
+  OnPerform:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2079514036}
+        m_TargetAssemblyTypeName: ExamineInteraction, Assembly-CSharp
+        m_MethodName: Examine
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnFinish:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCancel:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &3028731532104523063
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -10,6 +10,13 @@ public class GridObject : MonoBehaviour
     private Vector3Int m_currentCellPos;
     public Vector3Int CurrentCellPosition => m_currentCellPos;
 
+    [SerializeField] private bool m_canPush = true;
+    public bool CanPush => m_canPush;
+
+    [SerializeField] private bool m_transparent = true;
+    public bool IsTransparent => m_transparent;
+    public bool IsOpaque => !m_transparent;
+
     private void Awake()
     {
         m_grid = LevelManager.Instance.Grid;

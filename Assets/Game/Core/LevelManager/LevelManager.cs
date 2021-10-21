@@ -87,11 +87,24 @@ public class LevelManager : MonoBehaviour
 
     public Brain GetBrainAtPosition(Vector3Int position)
     {
-        foreach (GridObject character in m_gridObjects)
+        foreach (GridObject gridObject in m_gridObjects)
         {
-            if (character.CurrentCellPosition == position)
+            if (gridObject.CurrentCellPosition == position)
             {
-                return character.gameObject.GetComponent<Brain>();
+                return gridObject.gameObject.GetComponent<Brain>();
+            }
+        }
+
+        return null;
+    }
+
+    public GridObject GetGridObjectAtPosition(Vector3Int position)
+    {
+        foreach (GridObject gridObject in m_gridObjects)
+        {
+            if (gridObject.CurrentCellPosition == position)
+            {
+                return gridObject;
             }
         }
 
@@ -135,7 +148,28 @@ public class LevelManager : MonoBehaviour
 
     public bool IsWalkable(Vector3Int position)
     {
-        return m_walkableTilemap.GetTile(position) != null;
+        if (m_walkableTilemap.GetTile(position) == null)
+            return false;
+
+        GridObject obj = GetGridObjectAtPosition(position);
+
+        if (obj != null && !obj.CanPush)
+            return false;
+
+        return true;
+    }
+
+    public bool IsVisible(Vector3Int position)
+    {
+        if (m_walkableTilemap.GetTile(position) == null)
+            return true;
+
+        GridObject obj = GetGridObjectAtPosition(position);
+
+        if (obj != null && obj.IsOpaque)
+            return false;
+
+        return true;
     }
 
     public bool IsInGrabRange(Vector3Int from, Vector3Int to)
@@ -148,10 +182,18 @@ public class LevelManager : MonoBehaviour
 
     public bool IsInLineOfSight(Vector3Int from, Vector3Int to)
     {
-        var optimalPath = Pathfind(from, to);
-        var line = Pathfind(from, to, ignoreObstacles: true);
+        if (!IsVisible(to) || !IsVisible(from))
+            return false;
+
+        var optimalPath = Pathfind(from, to, useDiagonals: true);
+        var line = Pathfind(from, to, useDiagonals: true, ignoreObstacles: true);
 
         return optimalPath.IsEqual(line);
+    }
+
+    public bool IsInFogOfWar(Vector3Int position)
+    {
+        return m_fogOfWarTilemap.GetTile(position) != null;
     }
 
     public List<Vector3Int> Pathfind(Vector3Int startPos, Vector3Int endPos, bool useDiagonals = false, bool ignoreObstacles = false)
