@@ -47,6 +47,12 @@ TagManager:
   - name: FloorActors
     uniqueID: 2773448479
     locked: 0
+  - name: Environment
+    uniqueID: 3371563337
+    locked: 0
+  - name: FogOfWar
+    uniqueID: 2573468823
+    locked: 0
   - name: UI
     uniqueID: 3284573517
     locked: 0

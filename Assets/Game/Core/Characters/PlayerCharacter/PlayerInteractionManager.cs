@@ -35,6 +35,9 @@ public class PlayerInteractionManager : MonoBehaviour
     {
         get
         {
+            if (m_brainStack == null)
+                m_brainStack = new Stack<Brain>();
+
             if (m_brainStack.Count == 0)
                 return null;
 

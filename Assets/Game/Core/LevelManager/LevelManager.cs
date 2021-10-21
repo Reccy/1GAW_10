@@ -12,6 +12,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] Tilemap m_walkableTilemap;
     public Tilemap WalkableTilemap => m_walkableTilemap;
 
+    [SerializeField] Tilemap m_fogOfWarTilemap;
+    public Tilemap FogOfWarTilemap => m_fogOfWarTilemap;
+
     [SerializeField] GameObject m_highlighter;
     public GameObject Highlighter => m_highlighter;
 
@@ -236,6 +239,20 @@ public class LevelManager : MonoBehaviour
         return path;
     }
 
+    private List<Vector3Int> GetNeighbours(Vector3Int cellPos, bool useDiagonals = false, bool ignoreObstacles = false)
+    {
+        var original = GetNeighbours((Vector2Int)cellPos, useDiagonals: useDiagonals, ignoreObstacles: ignoreObstacles);
+
+        List<Vector3Int> result = new List<Vector3Int>();
+
+        foreach (var v in original)
+        {
+            result.Add((Vector3Int)v);
+        }
+
+        return result;
+    }
+
     private List<Vector2Int> GetNeighbours(Vector2Int cellPos, bool useDiagonals = false, bool ignoreObstacles = false)
     {
         List<Vector2Int> result = new List<Vector2Int>();
@@ -257,6 +274,40 @@ public class LevelManager : MonoBehaviour
             AddIfValid(cellPos + Vector2Int.up + Vector2Int.right);
             AddIfValid(cellPos + Vector2Int.down + Vector2Int.left);
             AddIfValid(cellPos + Vector2Int.down + Vector2Int.right);
+        }
+
+        return result;
+    }
+
+    public List<Vector3Int> GetVisibleTilesFrom(Vector3Int origin)
+    {
+        List<Vector3Int> result = new List<Vector3Int>();
+
+        List<Vector3Int> scannedTiles = new List<Vector3Int>();
+        Stack<Vector3Int> frontier = new Stack<Vector3Int>();
+
+        frontier.Push(origin);
+        scannedTiles.Add(origin);
+
+        while (frontier.Count > 0)
+        {
+            Vector3Int tileTest = frontier.Pop();
+
+            if (IsInLineOfSight(origin, tileTest))
+            {
+                result.Add(tileTest);
+
+                var neighbours = GetNeighbours(tileTest, useDiagonals: true);
+
+                foreach (var n in neighbours)
+                {
+                    if (!scannedTiles.Contains(n))
+                    {
+                        frontier.Push(n);
+                        scannedTiles.Add(n);
+                    }
+                }
+            }
         }
 
         return result;
