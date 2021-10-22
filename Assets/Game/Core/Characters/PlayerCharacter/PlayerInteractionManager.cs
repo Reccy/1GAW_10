@@ -328,8 +328,7 @@ public class PlayerInteractionManager : MonoBehaviour
 
         m_highlighter.SetActive(false);
 
-        Weapon weapon = null;
-
+        Weapon weapon;
         if (LevelManager.Instance.IsInGrabRange(CurrentBrain.CurrentCellPosition, m_currentHighlightedBrain.CurrentCellPosition))
         {
             weapon = CurrentBrain.Attributes.MeleeWeapon;

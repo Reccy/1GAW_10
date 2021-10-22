@@ -339,7 +339,7 @@ public class LevelManager : MonoBehaviour
             {
                 result.Add(tileTest);
 
-                var neighbours = GetNeighbours(tileTest, useDiagonals: true);
+                var neighbours = GetNeighbours(tileTest);
 
                 foreach (var n in neighbours)
                 {

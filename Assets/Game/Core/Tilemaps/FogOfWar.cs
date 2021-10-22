@@ -16,6 +16,12 @@ public class FogOfWar : MonoBehaviour
     private void Awake()
     {
         m_bounds = LevelManager.Instance.WalkableTilemap.cellBounds;
+
+        m_bounds.yMin--;
+        m_bounds.xMin--;
+        m_bounds.yMax++;
+        m_bounds.xMax++;
+
         m_pim = FindObjectOfType<PlayerInteractionManager>();
     }
 
